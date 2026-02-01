@@ -2,55 +2,109 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>💚 NCT DREAM 전곡 소트 💚</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/static/pretendard.css">
 <style>
-  body { font-family: 'Pretendard', sans-serif; background: #111; color: #fff; text-align: center; margin: 0; padding: 20px; }
-h1 { font-size: 2.2rem; margin-bottom: 5px;  }
-  .subtitle { font-size: 0.95rem; color: #aaa; margin-bottom: 25px; }
-  .guide-text { font-size: 0.85rem; color: #888; margin-top: 4px; display: block; } /* 행간 좁게 조절 */
-  #progress { background: #333; border-radius: 6px; width: 80%; height: 25px; margin: 0 auto 15px; position: relative; overflow: hidden; }
+  body { font-family: 'Pretendard', sans-serif; background: #111; color: #fff; text-align: center; margin: 0; padding: 15px; }
+  
+  /* 헤더 섹션 */
+  h1 { font-size: 1.8rem; margin-bottom: 5px; ; }
+  .subtitle { font-size: 0.9rem; color: #aaa; margin-bottom: 20px; line-height: 1.4; }
+  .guide-text { font-size: 0.8rem; color: #888; display: block; margin-top: 5px; }
+
+  /* 진행률 바 - 모바일에서 조금 더 잘 보이게 조절 */
+  #progress { background: #333; border-radius: 6px; width: 100%; max-width: 500px; height: 25px; margin: 0 auto 20px; position: relative; overflow: hidden; }
   .progress-bar { background: #dcbbff; width: 0%; height: 100%; transition: width 0.3s; }
-  .progress-text { position: absolute; width: 100%; left: 0; top: 0; line-height: 25px; font-size: 0.8rem; color: #fff; font-weight: bold; }
-  #battle { display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
-  .card { background: #222; border-radius: 10px; width: 180px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; overflow: hidden; border: 2px solid #333; }
-  .card:hover { transform: scale(1.05); border-color: #dcbbff; }
-  .card img.thumb { width: 100%; display: block; }
-  .card-name { padding: 10px; font-size: 0.95rem; font-weight: 600; min-height: 40px; display: flex; align-items: center; justify-content: center; }
-  #result { display: none; margin: 20px auto; max-width: 500px; text-align: left; background: #222; padding: 20px; border-radius: 10px; }
-  .result-item { padding: 8px; border-bottom: 1px solid #333; display: flex; gap: 15px; align-items: center; justify-content: space-between; }
-  .result-left { display: flex; gap: 15px; align-items: center; }
-  .result-rank { color: #dcbbff; font-weight: bold; width: 30px; }
-  .result-percent { color: #dcbbff; font-size: 0.85rem; font-weight: bold; }
-  #videoModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); justify-content:center; align-items:center; z-index:999; flex-direction:column; }
-  #videoFrame { width:80%; max-width:560px; height:315px; border-radius:10px; }
-  #closeVideo { margin-top:20px; padding:8px 16px; border:none; border-radius:5px; background:#dcbbff; cursor:pointer; color:#111; font-weight: bold; }
+  .progress-text { position: absolute; width: 100%; left: 0; top: 0; line-height: 25px; font-size: 0.75rem; color: #fff; font-weight: bold; }
+
+  /* 대결 구도 - 모바일 대응 */
+  #battle { 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start;
+    gap: 15px; 
+    margin-bottom: 20px; 
+  }
+
+  /* 카드 디자인 - 반응형 너비 설정 */
+  .card { 
+    background: #222; 
+    border-radius: 10px; 
+    width: calc(50% - 10px); /* 모바일에서 2줄로 보임 */
+    max-width: 220px; 
+    cursor: pointer; 
+    transition: transform 0.2s; 
+    overflow: hidden; 
+    border: 2px solid #333; 
+  }
+  .card:active { transform: scale(0.95); } /* 터치 시 피드백 */
+  .card:hover { border-color: #dcbbff; }
+  
+  .card img.thumb { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+  .card-name { 
+    padding: 12px 8px; 
+    font-size: 0.9rem; 
+    font-weight: 600; 
+    min-height: 50px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    word-break: keep-all; /* 단어 단위 줄바꿈 */
+  }
+
+  /* 결과창 */
+  #result { display: none; margin: 10px auto; width: 100%; max-width: 500px; text-align: left; background: #222; padding: 15px; border-radius: 10px; }
+  .result-item { padding: 10px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; }
+  .result-left { display: flex; gap: 10px; align-items: center; font-size: 0.9rem; }
+  .result-rank { color: #dcbbff; font-weight: bold; width: 25px; }
+  .result-percent { color: #dcbbff; font-size: 0.8rem; font-weight: bold; }
+
+  /* 영상 모달 - 모바일 꽉 차게 */
+  #videoModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); justify-content:center; align-items:center; z-index:999; flex-direction:column; }
+  #videoFrame { width:95%; aspect-ratio: 16/9; border-radius:10px; border:none; }
+  #closeVideo { margin-top:20px; padding:12px 30px; border:none; border-radius:5px; background:#dcbbff; cursor:pointer; color:#111; font-weight: bold; font-size: 1rem; }
+
+  /* [추가] 하단 크레딧 스타일 */
+  .footer-credit { font-size: 0.7rem; color: #8D8D8D; margin: 20px 0; }
+
+  /* [모바일 전용 화면 조절] 화면이 너무 작을 때 */
+  @media (max-width: 360px) {
+    h1 { font-size: 1.5rem; }
+    #battle { gap: 10px; }
+    .card-name { font-size: 0.8rem; padding: 10px 5px; }
+  }
 </style>
 </head>
 <body>
 
 <h1>💚 NCT DREAM 전곡 소트 💚</h1>
-<div class="subtitle">[ ~BEAT IT UP🥊 ] @leeazws <span class="guide-text">썸네일 클릭 : 음악 재생 ▶️, 곡명 클릭 : 선택 ☑️ (재생 안되는 곡도 있음ㅠㅠ)</span>
+<div class="subtitle">[ ~BEAT IT UP🥊 ] 
+  <span class="guide-text">썸네일 클릭-> 음악 재생 ▶️ | 곡 제목 클릭-> 선택 ☑️ | @leeazws </span>
 </div>
 
 <div id="progress">
   <div class="progress-bar" id="progressBar"></div>
-  <div class="progress-text" id="progressText">진행도 계산 중...</div>
+  <div class="progress-text" id="progressText">로딩 중...</div>
 </div>
 
 <div id="battle"></div>
 
 <div id="result">
-  <h2>🏆 최종 결과 🏆 </h2><div class="subtitle">♡엔시티드림 파이팅♡</div>
+  <h2 style="text-align:center; font-size:1.5rem;">🏆 최종 결과 🏆</h2>
+  <div style="text-align:center; color:#aaa; font-size:0.8rem; margin-bottom:15px;">♡엔시티드림 파이팅♡</div>
   <div id="resultList"></div>
 </div>
 
 <div id="videoModal">
-  <iframe id="videoFrame" frameborder="0" allowfullscreen></iframe>
+  <iframe id="videoFrame" allow="autoplay; encrypted-media" allowfullscreen></iframe>
   <button id="closeVideo">닫기</button>
 </div>
 
+<div class="footer-credit"> | 달리 @leeazws | </div>
+
 <script>
+// 기존 데이터 및 로직 (동일하게 유지)
 const originalSongs = [
   { name: "Chewing Gum", id: "fwmvF5ffmhg" }, { name: "마지막 첫사랑 (My First and Last)", id: "4pUc7SD0PmU" },
   { name: "덩크슛 (Dunk Shot)", id: "cm5PbcKlvMU" }, { name: "We Young", id: "h3aP1cxwCyk" },
@@ -109,31 +163,22 @@ const originalSongs = [
   { name: "Tempo (0에서 100)", id: "sqWk4Hn3sIg" }, { name: "TRICKY", id: "kT_bK9QD-T4" }
 ];
 
-// 소트 상태 변수
-let leftList = [], rightList = [], resultTemp = [];
 let songStacks = []; 
+let leftList = [], rightList = [], resultTemp = [];
 let currentLeftIdx = 0, currentRightIdx = 0;
 let totalComparisons = 0;
 let estimatedTotal = Math.floor(originalSongs.length * Math.log2(originalSongs.length));
+let isFinished = false;
 
-	let isFinished = false;
-	
-// 초기화
 function initSort() {
-  const shuffled = [...originalSongs].map(song => ({
-    ...song,
-    winCount: 0,
-    matchCount: 0
-  })).sort(() => Math.random() - 0.5);
+  const shuffled = originalSongs.map(song => ({ ...song, winCount: 0, matchCount: 0 }))
+                                .sort(() => Math.random() - 0.5);
   songStacks = shuffled.map(song => [song]);
   prepareNextMerge();
 }
 
 function prepareNextMerge() {
-  if (songStacks.length <= 1) {
-    showResult();
-    return;
-  }
+  if (songStacks.length <= 1) { showResult(); return; }
   leftList = songStacks.shift();
   rightList = songStacks.shift();
   resultTemp = [];
@@ -146,22 +191,15 @@ function renderBattle() {
   updateProgress();
   const battleDiv = document.getElementById("battle");
   battleDiv.innerHTML = "";
-
   const songL = leftList[currentLeftIdx];
   const songR = rightList[currentRightIdx];
-
-  // 노출 횟수 기록
-  songL.matchCount++;
-  songR.matchCount++;
+  songL.matchCount++; songR.matchCount++;
 
   [songL, songR].forEach((song, idx) => {
     const card = document.createElement("div");
     card.className = "card";
-    card.innerHTML = `
-      <img src="https://img.youtube.com/vi/${song.id}/0.jpg" class="thumb">
-      <div class="card-name">${song.name}</div>
-    `;
-
+    card.innerHTML = `<img src="https://img.youtube.com/vi/${song.id}/0.jpg" class="thumb"><div class="card-name">${song.name}</div>`;
+    
     card.querySelector(".thumb").onclick = (e) => {
       e.stopPropagation();
       document.getElementById("videoFrame").src = `https://www.youtube.com/embed/${song.id}?autoplay=1`;
@@ -175,71 +213,41 @@ function renderBattle() {
 
 function selectSong(winner) {
   totalComparisons++;
-  
-  if (winner === "left") {
-    leftList[currentLeftIdx].winCount++;
-    resultTemp.push(leftList[currentLeftIdx]);
-    currentLeftIdx++;
-  } else {
-    rightList[currentRightIdx].winCount++;
-    resultTemp.push(rightList[currentRightIdx]);
-    currentRightIdx++;
-  }
+  if (winner === "left") { leftList[currentLeftIdx].winCount++; resultTemp.push(leftList[currentLeftIdx]); currentLeftIdx++; } 
+  else { rightList[currentRightIdx].winCount++; resultTemp.push(rightList[currentRightIdx]); currentRightIdx++; }
 
-  if (currentLeftIdx < leftList.length && currentRightIdx < rightList.length) {
-    renderBattle();
-  } else {
-    const remaining = currentLeftIdx < leftList.length 
-      ? leftList.slice(currentLeftIdx) 
-      : rightList.slice(currentRightIdx);
-    
-    resultTemp = resultTemp.concat(remaining);
+  if (currentLeftIdx < leftList.length && currentRightIdx < rightList.length) { renderBattle(); } 
+  else {
+    resultTemp = resultTemp.concat(currentLeftIdx < leftList.length ? leftList.slice(currentLeftIdx) : rightList.slice(currentRightIdx));
     songStacks.push(resultTemp);
     prepareNextMerge();
   }
 }
 
 function updateProgress() {
-  // 종료 전까지는 최대 99.9%까지만 표시되도록 제한
   let percent = Math.min(99.9, (totalComparisons / estimatedTotal) * 100).toFixed(1);
-  
-  // 진짜로 showResult()가 호출되었을 때만 100%로 변경
   if (isFinished) percent = "100";
-
   document.getElementById("progressBar").style.width = percent + "%";
-  document.getElementById("progressText").innerText = 
-    `${totalComparisons} / ${estimatedTotal} (${percent}%)`;
+  document.getElementById("progressText").innerText = `${totalComparisons} / ${estimatedTotal} (${percent}%)`;
 }
+
 function showResult() {
-  isFinished = true; // 종료 상태로 변경
-  updateProgress();  // 100%로 갱신
-  
+  isFinished = true;
+  updateProgress();
   document.getElementById("battle").style.display = "none";
   document.getElementById("progress").style.display = "none";
-  const resultDiv = document.getElementById("result");
-  const resultList = document.getElementById("resultList");
-  resultDiv.style.display = "block";
-
-  const finalRank = songStacks[0]; 
+  document.getElementById("result").style.display = "block";
+  const list = document.getElementById("resultList");
   
-  // 승률 기준 내림차순 정렬 (승리횟수 / 대결횟수)
-  finalRank.sort((a, b) => {
-    const rateA = a.matchCount > 0 ? (a.winCount / a.matchCount) : 0;
-    const rateB = b.matchCount > 0 ? (b.winCount / b.matchCount) : 0;
-    return rateB - rateA;
-  });
+  const sortedResult = songStacks[0].sort((a, b) => (b.winCount / b.matchCount) - (a.winCount / a.matchCount));
 
-  finalRank.forEach((song, i) => {
-    const rate = song.matchCount > 0 ? ((song.winCount / song.matchCount) * 100).toFixed(1) : "0.0";
-    resultList.innerHTML += `
+  sortedResult.forEach((song, i) => {
+    const winRate = ((song.winCount / song.matchCount) * 100).toFixed(1);
+    list.innerHTML += `
       <div class="result-item">
-        <div class="result-left">
-          <span class="result-rank">${i + 1}</span>
-          <span>${song.name}</span>
-        </div>
-        <span class="result-percent">${rate}%</span>
-      </div>
-    `;
+        <div class="result-left"><span class="result-rank">${i+1}</span><span>${song.name}</span></div>
+        <span class="result-percent">${winRate}%</span>
+      </div>`;
   });
 }
 
